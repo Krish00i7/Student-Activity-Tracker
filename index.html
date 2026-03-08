@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Student Activity Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="twrap" id="toasts"></div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="add-modal" onclick="bgClose(event,'add-modal',closeAddModal)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add <span>New Activity</span></div>
+      <button class="modal-close" onclick="closeAddModal()">✕</button>
+    </div>
+    <div class="field">
+      <label class="field-label">Activity Name <span>*</span></label>
+      <input type="text" id="f-name" placeholder="e.g. Learn React Hooks" maxlength="80"/>
+      <div class="err-msg" id="err-name">Please enter an activity name.</div>
+    </div>
+    <div class="field">
+      <label class="field-label">Description <span>*</span></label>
+      <textarea id="f-desc" placeholder="What will you learn or do?"></textarea>
+      <div class="err-msg" id="err-desc">Please add a short description.</div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Category <span>*</span></label>
+        <select id="f-cat">
+          <option value="">Select category</option>
+          <option value="Web Dev">Web Dev</option>
+          <option value="Programming">Programming</option>
+          <option value="Tools">Tools</option>
+          <option value="Design">Design</option>
+          <option value="Data Science">Data Science</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Duration</label>
+        <input type="text" id="f-dur" placeholder="e.g. 2 hrs"/>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">XP Reward</label>
+      <input type="number" id="f-xp" placeholder="50" min="5" max="500"/>
+      <div class="xp-hint">⚡ Suggested: 30–100 XP based on effort</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+      <button class="btn-submit" onclick="submitAdd()">✦ Add Activity</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="del-modal" onclick="bgClose(event,'del-modal',closeDelModal)">
+  <div class="del-modal">
+    <div class="del-icon">
+      <svg viewBox="0 0 22 22"><polyline points="3 6 5 6 19 6"/><path d="M19 6l-1 14H4L3 6"/><path d="M8 6V4h6v2"/></svg>
+    </div>
+    <div class="del-title">Delete Activity?</div>
+    <div class="del-sub">Are you sure you want to delete <span class="del-name" id="del-name-lbl">"..."</span>? This cannot be undone.</div>
+    <div class="del-actions">
+      <button class="btn-del-cancel" onclick="closeDelModal()">Cancel</button>
+      <button class="btn-del-confirm" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo"><div class="logo-badge">SAT</div>Student Activity Tracker</div>
+  <div class="nav-pills">
+    <button class="npill active" onclick="goPage('home',this)">Home</button>
+    <button class="npill" onclick="goPage('activities',this)">Activities</button>
+    <button class="npill" onclick="goPage('progress',this)">Progress</button>
+  </div>
+  <div class="streak-chip">🔥 <span id="nav-streak">0 Streak</span></div>
+</nav>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="home">
+    <div class="title-block">
+      <div class="title-eyebrow"><div class="pulse"></div>Your learning dashboard</div>
+      <h1 class="big-title"><span class="hl-box">Student</span><br><span class="hl">Activity</span><br>Tracker</h1>
+      <p class="title-sub">Track your <strong>learning activities</strong>, mark tasks complete,<br>and watch your progress grow — all in one place.</p>
+      <div class="cta-row">
+        <button class="btn-lime" onclick="goPage('activities',document.querySelectorAll('.npill')[1])">View Activities <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5h10M9 3.5l4 4-4 4"/></svg></button>
+        <button class="btn-ghost" onclick="goPage('progress',document.querySelectorAll('.npill')[2])">See Progress</button>
+      </div>
+    </div>
+    <div class="stat-cards">
+      <div class="scard sc1"><div class="scard-shine"></div><div class="scard-num" id="h-total">6</div><div class="scard-lbl">Total Activities</div></div>
+      <div class="scard sc2"><div class="scard-shine"></div><div class="scard-num" id="h-done">0</div><div class="scard-lbl">Completed</div></div>
+      <div class="scard sc3"><div class="scard-shine"></div><div class="scard-num" id="h-pend">6</div><div class="scard-lbl">Pending</div></div>
+      <div class="scard sc4"><div class="scard-shine"></div><div class="scard-num" id="h-xp">0</div><div class="scard-lbl">XP Earned</div></div>
+    </div>
+    <div class="features">
+      <div class="feat"><div class="feat-dot" style="background:var(--lime)"></div>XP Rewards</div>
+      <div class="feat"><div class="feat-dot" style="background:var(--cyan)"></div>Progress Tracking</div>
+      <div class="feat"><div class="feat-dot" style="background:var(--pink)"></div>Category Breakdown</div>
+      <div class="feat"><div class="feat-dot" style="background:var(--yellow)"></div>Activity Streaks</div>
+      <div class="feat"><div class="feat-dot" style="background:var(--p400)"></div>Add &amp; Delete Activities</div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTIVITIES -->
+<div class="page" id="page-activities">
+  <div class="acts">
+    <div class="acts-hdr">
+      <div>
+        <div class="section-title">My <span class="accent">Activities</span></div>
+        <div class="section-sub">Mark tasks complete to earn XP · Add your own activities</div>
+      </div>
+      <div class="prog-panel">
+        <div class="pp-row"><span class="pp-lbl">Progress</span><span class="pp-frac" id="pp-frac">0 / 6</span></div>
+        <div class="pp-track"><div class="pp-fill" id="pp-fill" style="width:0%"></div></div>
+        <div class="pp-msg" id="pp-msg">Complete your first activity ✦</div>
+      </div>
+    </div>
+    <div class="acts-toolbar">
+      <div class="ftabs">
+        <button class="ftab active" onclick="filt('all',this)">All <span class="n" id="n-all">6</span></button>
+        <button class="ftab" onclick="filt('pending',this)">Pending <span class="n" id="n-pend">6</span></button>
+        <button class="ftab" onclick="filt('completed',this)">Completed <span class="n" id="n-done">0</span></button>
+      </div>
+      <button class="btn-add" onclick="openAddModal()">
+        <svg viewBox="0 0 14 14"><path d="M7 1v12M1 7h12"/></svg>
+        Add Activity
+      </button>
+    </div>
+    <div class="cards" id="cards"></div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="page" id="page-progress">
+  <div class="prog">
+    <div class="section-title" style="margin-bottom:24px">Progress <span class="accent">Report</span></div>
+    <div class="prog-banner">
+      <div class="pb-left">
+        <div class="pb-eyebrow">Overall completion</div>
+        <div class="pb-num" id="pb-num">0<span> / 6</span></div>
+        <div class="pb-msg" id="pb-msg">Start completing activities!</div>
+      </div>
+      <div class="pb-right">
+        <div class="pb-pct-lbl">Completion rate</div>
+        <div class="pb-track"><div class="pb-fill" id="pb-fill" style="width:0%"></div></div>
+        <div class="pb-pct" id="pb-pct">0%</div>
+      </div>
+    </div>
+    <div class="bstat-row">
+      <div class="bstat"><div class="bstat-val" style="color:var(--p400)" id="pg-total">6</div><div class="bstat-lbl">Total</div></div>
+      <div class="bstat"><div class="bstat-val" style="color:#3ecf3e" id="pg-done">0</div><div class="bstat-lbl">Completed</div></div>
+      <div class="bstat"><div class="bstat-val" style="color:rgba(255,255,255,0.35)" id="pg-pend">6</div><div class="bstat-lbl">Pending</div></div>
+      <div class="bstat"><div class="bstat-val" style="color:var(--yellow)" id="pg-xp">0</div><div class="bstat-lbl">XP Earned</div></div>
+    </div>
+    <div class="sh">By Category</div>
+    <div class="cbars" id="cbars"></div>
+    <div class="sh">Activity Log</div>
+    <div class="log-rows" id="log-rows"></div>
+  </div>
+</div>
+
+
+<script src="script.js"></script>
+</body>
+</html>
