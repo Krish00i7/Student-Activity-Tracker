@@ -8,7 +8,7 @@ A gamified, single-page web app to help students track their learning activities
 
 ## 🌐 Live Demo
 
-[Live at]https://krish00i7.github.io/Student-Activity-Tracker/
+https://krish00i7.github.io/Student-Activity-Tracker/
 
 ---
 
